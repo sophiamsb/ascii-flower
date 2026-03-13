@@ -134,33 +134,29 @@
             const startY = Math.max(20, (canvasHeight - totalHeight) / 2);
             const startX = 30;
             
-            // Create SVG header with better Unicode support
+            // Create SVG header
             let svgContent = `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${canvasWidth}" height="${canvasHeight}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
-      .flower-text { font-family: monospace; font-size: ${currentFontSize}px; fill: ${style.textColor}; white-space: pre; font-weight: 400; }
+      .flower-text { font-family: monospace; font-size: ${currentFontSize}px; fill: ${style.textColor}; }
+      .flower-line { font-family: monospace; font-size: ${currentFontSize}px; fill: ${style.textColor}; }
     </style>
   </defs>
   <rect width="${canvasWidth}" height="${canvasHeight}" fill="${style.backgroundColor}"/>
 `;
             
-            // Add all lines as a single <text> element with tspan for each line
-            svgContent += `  <text x="${startX}" y="${startY}" class="flower-text" xml:space="preserve">`;
-            
+            // Add each line as a separate text element with proper positioning
             flower.lines.forEach((line, index) => {
+                const y = startY + (index * lineHeight);
                 const escapedLine = line
                     .replace(/&/g, '&amp;')
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;');
-                if (index === 0) {
-                    svgContent += escapedLine;
-                } else {
-                    svgContent += `\n${escapedLine}`;
-                }
+                svgContent += `  <text x="${startX}" y="${y}" class="flower-line">${escapedLine}</text>\n`;
             });
             
-            svgContent += `</text>\n</svg>`;
+            svgContent += `</svg>`;
             
             // Create blob and download
             const blob = new Blob([svgContent], { type: 'image/svg+xml' });
