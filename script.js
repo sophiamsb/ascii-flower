@@ -1,24 +1,42 @@
 const canvas = document.getElementById('flowerCanvas');
 const ctx = canvas.getContext('2d');
 
-// Set up canvas
-ctx.fillStyle = 'white';
-ctx.fillRect(0, 0, canvas.width, canvas.height);
+// Configuration
+let currentFlower = 'rose';
+let currentStyle = 'classic';
 
-// Set text properties for ASCII art
-ctx.fillStyle = 'black';
-ctx.font = '12px monospace';
-ctx.textBaseline = 'top';
+/**
+ * Render the flower on canvas
+ * @param {string} flowerKey - Key of the flower from flowers object
+ * @param {string} styleKey - Key of the style from styles object
+ */
+function renderFlower(flowerKey = currentFlower, styleKey = currentStyle) {
+    const flower = flowers[flowerKey];
+    const style = styles[styleKey];
+    
+    if (!flower || !style) {
+        console.error('Invalid flower or style');
+        return;
+    }
+    
+    // Clear canvas with background color
+    ctx.fillStyle = style.backgroundColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Set text properties
+    ctx.fillStyle = style.textColor;
+    ctx.font = `${style.fontSize}px ${style.fontFamily}`;
+    ctx.textBaseline = 'top';
+    
+    // Draw flower lines
+    const lineHeight = style.fontSize + 4; // Small padding between lines
+    const startX = 50;
+    const startY = 50;
+    
+    flower.lines.forEach((line, index) => {
+        ctx.fillText(line, startX, startY + (index * lineHeight));
+    });
+}
 
-// Draw placeholder ASCII flower
-const flowerASCII = `
-    *
-   /|\\
-    |
-   / \\
-`;
-
-const lines = flowerASCII.split('\n');
-lines.forEach((line, index) => {
-    ctx.fillText(line, 50, 50 + (index * 16));
-});
+// Initial render
+renderFlower();

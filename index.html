@@ -13,11 +13,39 @@
         
         body {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             background-color: #f5f5f5;
             font-family: monospace;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        label {
+            font-weight: bold;
+        }
+        
+        select {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: monospace;
+            cursor: pointer;
         }
         
         canvas {
@@ -28,8 +56,45 @@
     </style>
 </head>
 <body>
+    <div class="controls">
+        <div class="control-group">
+            <label for="flowerSelect">Flower:</label>
+            <select id="flowerSelect">
+                <option value="simple">Simple</option>
+                <option value="rose" selected>Rose</option>
+                <option value="daisy">Daisy</option>
+                <option value="tulip">Tulip</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="styleSelect">Style:</label>
+            <select id="styleSelect">
+                <option value="classic" selected>Classic</option>
+                <option value="dark">Dark Mode</option>
+                <option value="neon">Neon</option>
+                <option value="vintage">Vintage</option>
+                <option value="pastel">Pastel</option>
+            </select>
+        </div>
+    </div>
+    
     <canvas id="flowerCanvas" width="1748" height="1240"></canvas>
     
+    <script src="flowers.js"></script>
+    <script src="styles.js"></script>
     <script src="script.js"></script>
+    
+    <script>
+        // Event listeners for controls
+        document.getElementById('flowerSelect').addEventListener('change', (e) => {
+            currentFlower = e.target.value;
+            renderFlower();
+        });
+        
+        document.getElementById('styleSelect').addEventListener('change', (e) => {
+            currentStyle = e.target.value;
+            renderFlower();
+        });
+    </script>
 </body>
 </html>
