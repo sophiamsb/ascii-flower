@@ -32,13 +32,41 @@ function renderFlower(flowerKey = currentFlower, styleKey = currentStyle, fontSi
     
     // Calculate dynamic spacing based on font size
     const lineHeight = fontSize + 4; // Padding between lines
+    const minMargin = 5; // Minimum margin from edges
+    const maxWidth = canvas.width - (minMargin * 2); // Available width for text
+    
+    // Find the longest line and measure its width
+    let longestLineWidth = 0;
+    flower.lines.forEach((line) => {
+        const metrics = ctx.measureText(line);
+        longestLineWidth = Math.max(longestLineWidth, metrics.width);
+    });
+    
+    // Dynamically adjust left margin based on whether content fits
+    let startX = minMargin;
+    
+    // If content would overflow right side, shift left or reduce font (keep original intent)
+    if (longestLineWidth + minMargin > canvas.width) {
+        // Content would overflow - center it anyway and let it fit as best as possible
+        startX = Math.max(minMargin, (canvas.width - longestLineWidth) / 2);
+    } else {
+        // Content fits - center horizontally for balance
+        startX = (canvas.width - longestLineWidth) / 2;
+    }
     
     // Calculate total height needed for the flower
     const totalHeight = flower.lines.length * lineHeight;
     
-    // Center the flower vertically and add some padding
-    const startY = Math.max(20, (canvas.height - totalHeight) / 2);
-    const startX = 30;
+    // Center the flower vertically, ensuring it fits
+    let startY = (canvas.height - totalHeight) / 2;
+    
+    // Ensure we have minimum top margin
+    startY = Math.max(minMargin, startY);
+    
+    // If would overflow bottom, adjust
+    if (startY + totalHeight > canvas.height - minMargin) {
+        startY = Math.max(minMargin, canvas.height - totalHeight - minMargin);
+    }
     
     // Draw flower lines
     flower.lines.forEach((line, index) => {
