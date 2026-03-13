@@ -117,9 +117,6 @@
     <script src="script.js"></script>
     
     <script>
-        /**
-         * Convert the current canvas drawing to SVG and download it
-         */
         function downloadAsSVG() {
             const flower = flowers[currentFlower];
             const style = styles[currentStyle];
@@ -137,31 +134,33 @@
             const startY = Math.max(20, (canvasHeight - totalHeight) / 2);
             const startX = 30;
             
-            // Create SVG header
+            // Create SVG header with better Unicode support
             let svgContent = `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${canvasWidth}" height="${canvasHeight}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
-      .flower-text { font-family: monospace; font-size: ${currentFontSize}px; fill: ${style.textColor}; }
+      .flower-text { font-family: monospace; font-size: ${currentFontSize}px; fill: ${style.textColor}; white-space: pre; font-weight: 400; }
     </style>
   </defs>
   <rect width="${canvasWidth}" height="${canvasHeight}" fill="${style.backgroundColor}"/>
 `;
             
-            // Add each line as SVG text element
+            // Add all lines as a single <text> element with tspan for each line
+            svgContent += `  <text x="${startX}" y="${startY}" class="flower-text" xml:space="preserve">`;
+            
             flower.lines.forEach((line, index) => {
-                const y = startY + (index * lineHeight);
                 const escapedLine = line
                     .replace(/&/g, '&amp;')
                     .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&apos;');
-                svgContent += `  <text x="${startX}" y="${y}" class="flower-text">${escapedLine}</text>
-`;
+                    .replace(/>/g, '&gt;');
+                if (index === 0) {
+                    svgContent += escapedLine;
+                } else {
+                    svgContent += `\n${escapedLine}`;
+                }
             });
             
-            svgContent += `</svg>`;
+            svgContent += `</text>\n</svg>`;
             
             // Create blob and download
             const blob = new Blob([svgContent], { type: 'image/svg+xml' });
