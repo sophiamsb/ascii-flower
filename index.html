@@ -106,7 +106,7 @@
             </select>
         </div>
         <div class="control-group">
-            <button id="downloadBtn">Download SVG</button>
+            <button id="downloadBtn">Download PNG</button>
         </div>
     </div>
     
@@ -117,61 +117,24 @@
     <script src="script.js"></script>
     
     <script>
-        function downloadAsSVG() {
-            const flower = flowers[currentFlower];
-            const style = styles[currentStyle];
-            
-            if (!flower || !style) {
-                alert('Error: Invalid flower or style');
-                return;
-            }
-            
-            // Calculate dimensions and positioning
-            const canvasWidth = canvas.width;
-            const canvasHeight = canvas.height;
-            const lineHeight = currentFontSize + 4;
-            const totalHeight = flower.lines.length * lineHeight;
-            const startY = Math.max(20, (canvasHeight - totalHeight) / 2);
-            const startX = 30;
-            
-            // Create SVG header
-            let svgContent = `<?xml version="1.0" encoding="UTF-8"?>
-<svg width="${canvasWidth}" height="${canvasHeight}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <style>
-      .flower-text { font-family: monospace; font-size: ${currentFontSize}px; fill: ${style.textColor}; }
-      .flower-line { font-family: monospace; font-size: ${currentFontSize}px; fill: ${style.textColor}; }
-    </style>
-  </defs>
-  <rect width="${canvasWidth}" height="${canvasHeight}" fill="${style.backgroundColor}"/>
-`;
-            
-            // Add each line as a separate text element with proper positioning
-            flower.lines.forEach((line, index) => {
-                const y = startY + (index * lineHeight);
-                const escapedLine = line
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;');
-                svgContent += `  <text x="${startX}" y="${y}" class="flower-line">${escapedLine}</text>\n`;
+        /**
+         * Download the canvas as PNG
+         */
+        function downloadAsPNG() {
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `ascii-flower-${currentFlower}-${new Date().getTime()}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
             });
-            
-            svgContent += `</svg>`;
-            
-            // Create blob and download
-            const blob = new Blob([svgContent], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `ascii-flower-${currentFlower}-${new Date().getTime()}.svg`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
         }
         
         // Event listeners for controls
-        document.getElementById('downloadBtn').addEventListener('click', downloadAsSVG);
+        document.getElementById('downloadBtn').addEventListener('click', downloadAsPNG);
         
         document.getElementById('fontSizeSlider').addEventListener('input', (e) => {
             currentFontSize = parseInt(e.target.value);
