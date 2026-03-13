@@ -58,6 +58,21 @@
             display: inline-block;
         }
         
+        button {
+            padding: 8px 16px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-family: monospace;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background-color: #555;
+        }
+        
         canvas {
             border: 2px solid #333;
             background-color: white;
@@ -90,13 +105,10 @@
                 <option value="pastel">Pastel</option>
             </select>
         </div>
-    </div>ontSizeSlider').addEventListener('input', (e) => {
-            currentFontSize = parseInt(e.target.value);
-            document.getElementById('fontSizeValue').textContent = currentFontSize + 'px';
-            renderFlower();
-        });
-        
-        document.getElementById('f
+        <div class="control-group">
+            <button id="downloadBtn">Download SVG</button>
+        </div>
+    </div>
     
     <canvas id="flowerCanvas" width="1748" height="1240"></canvas>
     
@@ -105,7 +117,73 @@
     <script src="script.js"></script>
     
     <script>
+        /**
+         * Convert the current canvas drawing to SVG and download it
+         */
+        function downloadAsSVG() {
+            const flower = flowers[currentFlower];
+            const style = styles[currentStyle];
+            
+            if (!flower || !style) {
+                alert('Error: Invalid flower or style');
+                return;
+            }
+            
+            // Calculate dimensions and positioning
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+            const lineHeight = currentFontSize + 4;
+            const totalHeight = flower.lines.length * lineHeight;
+            const startY = Math.max(20, (canvasHeight - totalHeight) / 2);
+            const startX = 30;
+            
+            // Create SVG header
+            let svgContent = `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${canvasWidth}" height="${canvasHeight}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .flower-text { font-family: monospace; font-size: ${currentFontSize}px; fill: ${style.textColor}; }
+    </style>
+  </defs>
+  <rect width="${canvasWidth}" height="${canvasHeight}" fill="${style.backgroundColor}"/>
+`;
+            
+            // Add each line as SVG text element
+            flower.lines.forEach((line, index) => {
+                const y = startY + (index * lineHeight);
+                const escapedLine = line
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&apos;');
+                svgContent += `  <text x="${startX}" y="${y}" class="flower-text">${escapedLine}</text>
+`;
+            });
+            
+            svgContent += `</svg>`;
+            
+            // Create blob and download
+            const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `ascii-flower-${currentFlower}-${new Date().getTime()}.svg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+        
         // Event listeners for controls
+        document.getElementById('downloadBtn').addEventListener('click', downloadAsSVG);
+        
+        document.getElementById('fontSizeSlider').addEventListener('input', (e) => {
+            currentFontSize = parseInt(e.target.value);
+            document.getElementById('fontSizeValue').textContent = currentFontSize + 'px';
+            renderFlower();
+        });
+        
         document.getElementById('flowerSelect').addEventListener('change', (e) => {
             currentFlower = e.target.value;
             renderFlower();
