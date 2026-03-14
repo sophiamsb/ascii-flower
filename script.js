@@ -32,8 +32,7 @@ function renderFlower(flowerKey = currentFlower, styleKey = currentStyle, fontSi
     
     // Calculate dynamic spacing based on font size
     const lineHeight = fontSize + 4; // Padding between lines
-    const minMargin = 5; // Minimum margin from edges
-    const maxWidth = canvas.width - (minMargin * 2); // Available width for text
+    const margin = 5; // Minimum margin from edges
     
     // Find the longest line and measure its width
     let longestLineWidth = 0;
@@ -42,35 +41,44 @@ function renderFlower(flowerKey = currentFlower, styleKey = currentStyle, fontSi
         longestLineWidth = Math.max(longestLineWidth, metrics.width);
     });
     
-    // Dynamically adjust left margin based on whether content fits
-    let startX = minMargin;
-    
-    // If content would overflow right side, shift left or reduce font (keep original intent)
-    if (longestLineWidth + minMargin > canvas.width) {
-        // Content would overflow - center it anyway and let it fit as best as possible
-        startX = Math.max(minMargin, (canvas.width - longestLineWidth) / 2);
-    } else {
-        // Content fits - center horizontally for balance
-        startX = (canvas.width - longestLineWidth) / 2;
-    }
-    
     // Calculate total height needed for the flower
     const totalHeight = flower.lines.length * lineHeight;
     
-    // Center the flower vertically, ensuring it fits
-    let startY = (canvas.height - totalHeight) / 2;
+    // Center the flower normally
+    let centerX = (canvas.width - longestLineWidth) / 2;
+    let centerY = (canvas.height - totalHeight) / 2;
     
-    // Ensure we have minimum top margin
-    startY = Math.max(minMargin, startY);
-    
-    // If would overflow bottom, adjust
-    if (startY + totalHeight > canvas.height - minMargin) {
-        startY = Math.max(minMargin, canvas.height - totalHeight - minMargin);
-    }
-    
-    // Draw flower lines
+    // Draw flower lines with per-line adjustment
     flower.lines.forEach((line, index) => {
-        ctx.fillText(line, startX, startY + (index * lineHeight));
+        const lineMetrics = ctx.measureText(line);
+        const lineWidth = lineMetrics.width;
+        
+        // Start with centered position
+        let lineX = centerX;
+        let lineY = centerY + (index * lineHeight);
+        
+        // Adjust only if this line overflows
+        // If line goes past right edge, shift left
+        if (lineX + lineWidth > canvas.width - margin) {
+            lineX = canvas.width - lineWidth - margin;
+        }
+        
+        // If line goes past left edge, shift right
+        if (lineX < margin) {
+            lineX = margin;
+        }
+        
+        // If line goes past bottom edge, shift up
+        if (lineY + lineHeight > canvas.height - margin) {
+            lineY = canvas.height - lineHeight - margin;
+        }
+        
+        // If line goes past top edge, shift down
+        if (lineY < margin) {
+            lineY = margin;
+        }
+        
+        ctx.fillText(line, lineX, lineY);
     });
 }
 
