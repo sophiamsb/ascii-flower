@@ -69,8 +69,8 @@ function renderFlower(flowerKey = currentFlower, styleKey = currentStyle, fontSi
         }
         
         // If line goes past bottom edge, shift up
-        if (lineY + lineHeight > canvas.height - margin) {
-            lineY = canvas.height - lineHeight - margin;
+        if (lineY + fontSize > canvas.height - margin) {
+            lineY = canvas.height - fontSize - margin;
         }
         
         // If line goes past top edge, shift down
