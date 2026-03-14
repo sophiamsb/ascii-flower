@@ -32,8 +32,8 @@ function renderFlower(flowerKey = currentFlower, styleKey = currentStyle, fontSi
     
     // Calculate dynamic spacing based on font size
     const lineHeight = fontSize + 4; // Padding between lines
-    const marginSide = 5; // Smaller margin for left/right
-    const marginVertical = 20; // Larger margin for top/bottom
+    const marginSide = 30; // Aggressive margin for left/right to force side shifting
+    const marginVertical = 10; // Smaller margin for top/bottom
     
     // Find the longest line and measure its width
     let longestLineWidth = 0;
