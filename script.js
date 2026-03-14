@@ -58,25 +58,45 @@ function renderFlower(flowerKey = currentFlower, styleKey = currentStyle, fontSi
         let lineX = centerX;
         let lineY = centerY + (index * lineHeight);
         
-        // PRIORITIZE HORIZONTAL ADJUSTMENT (sides)
-        // If line goes past right edge, shift left
-        if (lineX + lineWidth > canvas.width - marginSide) {
+        // Check overflow directions
+        const overflowsRight = lineX + lineWidth > canvas.width - marginSide;
+        const overflowsLeft = lineX < marginSide;
+        const overflowsBottom = lineY + fontSize > canvas.height - marginVertical;
+        const overflowsTop = lineY < marginVertical;
+        
+        // Diagonal shifting based on overflow direction
+        // Bottom-Right overflow → shift up-left
+        if (overflowsBottom && overflowsRight) {
             lineX = canvas.width - lineWidth - marginSide;
-        }
-        
-        // If line goes past left edge, shift right
-        if (lineX < marginSide) {
-            lineX = marginSide;
-        }
-        
-        // Then adjust vertical only if absolutely necessary
-        // If line goes past bottom edge, shift up
-        if (lineY + fontSize > canvas.height - marginVertical) {
             lineY = canvas.height - fontSize - marginVertical;
         }
-        
-        // If line goes past top edge, shift down
-        if (lineY < marginVertical) {
+        // Bottom-Left overflow → shift up-right
+        else if (overflowsBottom && overflowsLeft) {
+            lineX = marginSide;
+            lineY = canvas.height - fontSize - marginVertical;
+        }
+        // Top-Right overflow → shift down-left
+        else if (overflowsTop && overflowsRight) {
+            lineX = canvas.width - lineWidth - marginSide;
+            lineY = marginVertical;
+        }
+        // Top-Left overflow → shift down-right
+        else if (overflowsTop && overflowsLeft) {
+            lineX = marginSide;
+            lineY = marginVertical;
+        }
+        // Only horizontal overflow
+        else if (overflowsRight) {
+            lineX = canvas.width - lineWidth - marginSide;
+        }
+        else if (overflowsLeft) {
+            lineX = marginSide;
+        }
+        // Only vertical overflow
+        else if (overflowsBottom) {
+            lineY = canvas.height - fontSize - marginVertical;
+        }
+        else if (overflowsTop) {
             lineY = marginVertical;
         }
         
