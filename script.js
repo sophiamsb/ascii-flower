@@ -32,7 +32,8 @@ function renderFlower(flowerKey = currentFlower, styleKey = currentStyle, fontSi
     
     // Calculate dynamic spacing based on font size
     const lineHeight = fontSize + 4; // Padding between lines
-    const margin = 5; // Minimum margin from edges
+    const marginSide = 20; // Larger margin for left/right
+    const marginVertical = 5; // Smaller margin for top/bottom
     
     // Find the longest line and measure its width
     let longestLineWidth = 0;
@@ -44,7 +45,7 @@ function renderFlower(flowerKey = currentFlower, styleKey = currentStyle, fontSi
     // Calculate total height needed for the flower
     const totalHeight = flower.lines.length * lineHeight;
     
-    // Center the flower normally
+    // Center the flower normally, accounting for larger side margins
     let centerX = (canvas.width - longestLineWidth) / 2;
     let centerY = (canvas.height - totalHeight) / 2;
     
@@ -57,25 +58,26 @@ function renderFlower(flowerKey = currentFlower, styleKey = currentStyle, fontSi
         let lineX = centerX;
         let lineY = centerY + (index * lineHeight);
         
-        // Adjust only if this line overflows
+        // PRIORITIZE HORIZONTAL ADJUSTMENT (sides)
         // If line goes past right edge, shift left
-        if (lineX + lineWidth > canvas.width - margin) {
-            lineX = canvas.width - lineWidth - margin;
+        if (lineX + lineWidth > canvas.width - marginSide) {
+            lineX = canvas.width - lineWidth - marginSide;
         }
         
         // If line goes past left edge, shift right
-        if (lineX < margin) {
-            lineX = margin;
+        if (lineX < marginSide) {
+            lineX = marginSide;
         }
         
+        // Then adjust vertical only if absolutely necessary
         // If line goes past bottom edge, shift up
-        if (lineY + fontSize > canvas.height - margin) {
-            lineY = canvas.height - fontSize - margin;
+        if (lineY + fontSize > canvas.height - marginVertical) {
+            lineY = canvas.height - fontSize - marginVertical;
         }
         
         // If line goes past top edge, shift down
-        if (lineY < margin) {
-            lineY = margin;
+        if (lineY < marginVertical) {
+            lineY = marginVertical;
         }
         
         ctx.fillText(line, lineX, lineY);
